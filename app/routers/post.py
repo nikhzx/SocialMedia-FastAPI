@@ -5,16 +5,19 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models, schemas
 
-router = APIRouter()
+router = APIRouter(
+    prefix='/posts',
+    tags = ["Posts"]
+)
 
-@router.get('/posts', response_model=List[schemas.Post])
+@router.get('/', response_model=List[schemas.Post])
 def get_posts(db: Session = Depends(get_db)):
     # cursor.execute('''SELECT * FROM posts''')
     # posts = cursor.fetchall()
     posts = db.query(models.Post).all()
     return posts
 
-@router.post('/posts', status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
+@router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db)):
     # new_post = models.Post(title=post.title, content=post.content, published=post.published)
     # print(post.model_dump())
@@ -36,7 +39,7 @@ def create_posts(post: schemas.PostCreate, db: Session = Depends(get_db)):
     # return {"new_post": f"title: {payLoad['title']}, content: {payLoad['content']}"}
 
 
-@router.get('/posts/{id}', response_model=schemas.Post)
+@router.get('/{id}', response_model=schemas.Post)
 # def get_post(id: int, response: Response):
 def get_post(id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == id).first()
@@ -51,7 +54,7 @@ def get_post(id: int, db: Session = Depends(get_db)):
         # return {"Message": f"Post with id: {id} was not found."}
     return post
 
-@router.delete('/posts/{id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id : int, db: Session = Depends(get_db)):
     deleted_post = db.query(models.Post).filter(models.Post.id == id)
     # index = find_index_post(id)
@@ -69,7 +72,7 @@ def delete_post(id : int, db: Session = Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.put('/posts/{id}', response_model=schemas.Post)
+@router.put('/{id}', response_model=schemas.Post)
 def updatePost(id: int, post: schemas.PostUpdate, db :Session = Depends(get_db)):
     post_query = db.query(models.Post).filter(models.Post.id == id)
     # index = find_index_post(id)
